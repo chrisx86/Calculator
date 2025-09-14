@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>卡通童趣風工程計算機</title>
+    <meta name="description" content="一個色彩鮮豔、充滿童趣的卡通風格工程計算機">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&family=Roboto+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #fdf0d5;
+            --panel-bg: #ffffff;
+            --calculator-bg: #ffffff;
+            --display-bg: #f0f0f0;
+            --text-primary: #4a4a4a;
+            --text-secondary: #7a7a7a;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+
+            --font-main: 'Nunito', sans-serif;
+            --font-mono: 'Roboto Mono', monospace;
+
+            --color-red: #ff6b6b;
+            --color-orange: #f08a5d;
+            --color-yellow: #ffd166;
+            --color-green: #83d483;
+            --color-blue: #74c0fc;
+            --color-purple: #b197fc;
+            --color-dark-blue: #3d405b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            min-height: 100vh;
+            padding: 24px;
+            gap: 24px;
+        }
+
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .panel {
+            background-color: var(--panel-bg);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 10px 20px var(--shadow-color);
+            border: 2px solid var(--text-primary);
+        }
+
+        .panel h3 {
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+            font-weight: 900;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #clear-history {
+            background: none;
+            border: 2px solid var(--text-secondary);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-family: var(--font-main);
+            font-weight: 700;
+            cursor: pointer;
+            padding: 6px 10px;
+            transition: all 0.2s;
+        }
+        #clear-history:hover {
+            color: var(--color-red);
+            border-color: var(--color-red);
+            transform: scale(1.05);
+        }
+
+        .base-selector, .panel-input {
+            width: 100%;
+            background: var(--display-bg);
+            border: 2px solid var(--text-primary);
+            border-radius: 16px;
+            padding: 12px;
+            font-family: var(--font-main);
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .panel-input:focus, .base-selector:focus {
+            outline: none;
+            border-color: var(--color-blue);
+        }
+
+        .base-results, .history-items {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .history-items {
+            max-height: 180px;
+            overflow-y: auto;
+            font-size: 1rem;
+            padding-right: 8px;
+        }
+
+        .history-item {
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 12px;
+            transition: background-color 0.2s;
+            word-wrap: break-word;
+            font-weight: 700;
+        }
+
+        .history-item:hover {
+            background-color: var(--display-bg);
+        }
+
+        .base-result-item {
+            display: flex;
+            align-items: flex-start;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .base-label {
+            color: var(--text-secondary);
+            margin-right: 16px;
+            min-width: 45px;
+        }
+
+        .base-value {
+            font-family: 'Roboto Mono', monospace;
+            overflow-wrap: break-word;
+            word-break: break-all;
+        }
+
+        .calculator {
+            max-width: 520px;
+            background-color: var(--calculator-bg);
+            border-radius: 24px;
+            box-shadow: 0 16px 48px var(--shadow-color);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            margin: auto;
+            border: 2px solid var(--text-primary);
+            transition: max-width 0.3s ease-in-out;
+        }
+
+        .display {
+            padding: 24px 32px;
+            background-color: var(--display-bg);
+            border-bottom: 2px solid var(--text-primary);
+        }
+
+        .expression {
+            height: 32px;
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            overflow-x: auto;
+            white-space: nowrap;
+            margin-bottom: 8px;
+            font-family: 'Roboto Mono', monospace;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+        #feedback-emoji {
+            margin-right: 10px;
+            font-size: 1.5rem;
+            transition: transform 0.2s;
+        }
+
+        .main-display-input {
+            width: 100%;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 3rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            word-wrap: break-word;
+            min-height: 70px;
+            background: transparent;
+            border: none;
+            text-align: right;
+        }
+
+        .buttons {
+            display: grid;
+            padding: 10px;
+            gap: 10px;
+        }
+
+        .btn {
+            font-family: var(--font-main);
+            font-size: 1.5rem;
+            font-weight: 900;
+            padding: 20px 0;
+            border: 2px solid var(--text-primary);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.1s ease-out;
+            color: var(--text-primary);
+            box-shadow: 0 5px 0 0 var(--text-primary);
+        }
+
+        .btn:active {
+            transform: translateY(3px) scale(0.98);
+            box-shadow: 0 2px 0 0 var(--text-primary);
+        }
+
+        .btn[disabled] {
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: 0 5px 0 0 var(--text-secondary);
+            border-color: var(--text-secondary);
+        }
+        .btn[disabled]:active {
+            transform: none;
+            box-shadow: 0 5px 0 0 var(--text-secondary);
+        }
+
+        .btn.function { background-color: var(--color-yellow); }
+        .btn.operator { background-color: var(--color-orange); }
+        .btn.hex { background-color: var(--color-green); }
+        .btn.equals { background-color: var(--color-red); }
+        .btn.zero, .btn[data-key='.'] { background-color: var(--color-blue); }
+
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+        }
+        .toast {
+            font-family: var(--font-main);
+            font-weight: 700;
+            color: var(--text-primary);
+            padding: 16px 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            border: 2px solid var(--text-primary);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.error { background-color: var(--color-red); }
+        .toast.warning { background-color: var(--color-yellow); }
+
+        @media (max-width: 900px) {
+            body { grid-template-columns: 1fr; }
+            .calculator { margin-top: 24px; max-width: 100%; }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="toast-container"></div>
+
+    <div class="left-panel">
+        <div class="panel" id="base-converter">
+            <h3>進制轉換器</h3>
+            <select class="base-selector" id="converter-base-selector">
+                <option value="16">輸入：16進制</option>
+                <option value="10">輸入：10進制</option>
+                <option value="8">輸入：8進制</option>
+                <option value="2">輸入：2進制</option>
+            </select>
+            <input type="text" class="panel-input" id="converter-input" placeholder="例如: FF,FE-1A" autocomplete="off">
+            <div class="base-results">
+                <div class="base-result-item"><span class="base-label">HEX</span><span class="base-value" id="converter-hex">0</span></div>
+                <div class="base-result-item"><span class="base-label">DEC</span><span class="base-value" id="converter-dec">0</span></div>
+                <div class="base-result-item"><span class="base-label">OCT</span><span class="base-value" id="converter-oct">0</span></div>
+                <div class="base-result-item"><span class="base-label">BIN</span><span class="base-value" id="converter-bin">0</span></div>
+            </div>
+        </div>
+        <div class="panel" id="calc-results">
+            <h3>計算結果</h3>
+            <div class="base-results">
+                <div class="base-result-item"><span class="base-label">HEX</span><span class="base-value" id="calc-hex">0</span></div>
+                <div class="base-result-item"><span class="base-label">DEC</span><span class="base-value" id="calc-dec">0</span></div>
+                <div class="base-result-item"><span class="base-label">OCT</span><span class="base-value" id="calc-oct">0</span></div>
+                <div class="base-result-item"><span class="base-label">BIN</span><span class="base-value" id="calc-bin">0</span></div>
+            </div>
+        </div>
+        <div class="panel" id="history-panel">
+            <h3>歷史紀錄 <button id="clear-history">清除</button></h3>
+            <div class="history-items" id="history-items"></div>
+        </div>
+    </div>
+    <div class="calculator" id="calculator">
+        <div class="calc-controls">
+            <select class="base-selector" id="calculator-base-selector">
+                <option value="10">模式：10進制</option>
+                <option value="16">模式：16進制</option>
+                <option value="8">模式：8進制</option>
+                <option value="2">模式：2進制</option>
+            </select>
+        </div>
+        <div class="display">
+            <div class="expression" id="expression-display"><span id="feedback-emoji">😊</span>&nbsp;</div>
+            <input type="text" class="main-display-input" id="main-display-input" placeholder="0" autocomplete="off">
+        </div>
+        <div class="buttons" id="buttons-grid"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Elements ---
+            const dom = {
+                calculator: document.getElementById('calculator'),
+                converterBaseSelector: document.getElementById('converter-base-selector'),
+                converterInput: document.getElementById('converter-input'),
+                converterHex: document.getElementById('converter-hex'),
+                converterDec: document.getElementById('converter-dec'),
+                converterOct: document.getElementById('converter-oct'),
+                converterBin: document.getElementById('converter-bin'),
+                calculatorBaseSelector: document.getElementById('calculator-base-selector'),
+                mainDisplayInput: document.getElementById('main-display-input'),
+                expressionDisplay: document.getElementById('expression-display'),
+                feedbackEmoji: document.getElementById('feedback-emoji'),
+                buttonsGrid: document.getElementById('buttons-grid'),
+                calcHex: document.getElementById('calc-hex'),
+                calcDec: document.getElementById('calc-dec'),
+                calcOct: document.getElementById('calc-oct'),
+                calcBin: document.getElementById('calc-bin'),
+                historyItems: document.getElementById('history-items'),
+                clearHistoryBtn: document.getElementById('clear-history'),
+                toastContainer: document.getElementById('toast-container'),
+            };
+
+            // --- State Management ---
+            const state = {
+                currentInput: '',
+                historyExpression: '',
+                base: 10,
+                isError: false,
+                justCalculated: false,
+                lastResult: 0,
+                converterBase: 16,
+                warnings: new Set(),
+            };
+
+            // --- Dynamic Button Layouts ---
+            const buttonLayouts = {
+                std: [
+                    { key: 'c_ac', text: 'AC', class: 'function', span: 1 },
+                    { key: '(', text: '(', value: '(', class: 'function', span: 1 },
+                    { key: ')', text: ')', value: ')', class: 'function', span: 1 },
+                    { key: '/', text: '÷', value: '/', class: 'operator', span: 1 },
+                    { key: '7', text: '7', value: '7', class: '', span: 1 },
+                    { key: '8', text: '8', value: '8', class: '', span: 1 },
+                    { key: '9', text: '9', value: '9', class: '', span: 1 },
+                    { key: '*', text: '×', value: '*', class: 'operator', span: 1 },
+                    { key: '4', text: '4', value: '4', class: '', span: 1 },
+                    { key: '5', text: '5', value: '5', class: '', span: 1 },
+                    { key: '6', text: '6', value: '6', class: '', span: 1 },
+                    { key: '-', text: '−', value: '-', class: 'operator', span: 1 },
+                    { key: '1', text: '1', value: '1', class: '', span: 1 },
+                    { key: '2', text: '2', value: '2', class: '', span: 1 },
+                    { key: '3', text: '3', value: '3', class: '', span: 1 },
+                    { key: '+', text: '+', value: '+', class: 'operator', span: 1 },
+                    { key: '0', text: '0', value: '0', class: 'zero', span: 2 },
+                    { key: '.', text: '.', value: '.', class: '', span: 1 },
+                    { key: 'Enter', text: '=', class: 'equals', span: 1 },
+                ],
+                hex: [
+                    { key: 'A', text: 'A', value: 'A', class: 'hex', span: 1 },
+                    { key: '7', text: '7', value: '7', class: '', span: 1 },
+                    { key: '8', text: '8', value: '8', class: '', span: 1 },
+                    { key: '9', text: '9', value: '9', class: '', span: 1 },
+                    { key: '/', text: '÷', value: '/', class: 'operator', span: 1 },
+                    { key: 'B', text: 'B', value: 'B', class: 'hex', span: 1 },
+                    { key: '4', text: '4', value: '4', class: '', span: 1 },
+                    { key: '5', text: '5', value: '5', class: '', span: 1 },
+                    { key: '6', text: '6', value: '6', class: '', span: 1 },
+                    { key: '*', text: '×', value: '*', class: 'operator', span: 1 },
+                    { key: 'C', text: 'C', value: 'C', class: 'hex', span: 1 },
+                    { key: '1', text: '1', value: '1', class: '', span: 1 },
+                    { key: '2', text: '2', value: '2', class: '', span: 1 },
+                    { key: '3', text: '3', value: '3', class: '', span: 1 },
+                    { key: '-', text: '−', value: '-', class: 'operator', span: 1 },
+                    { key: 'D', text: 'D', value: 'D', class: 'hex', span: 1 },
+                    { key: '0', text: '0', value: '0', class: 'zero', span: 2 },
+                    { key: '.', text: '.', value: '.', class: '', span: 1 },
+                    { key: '+', text: '+', value: '+', class: 'operator', span: 1 },
+                    { key: 'E', text: 'E', value: 'E', class: 'hex', span: 1 },
+                    { key: 'F', text: 'F', value: 'F', class: 'hex', span: 1 },
+                    { key: '(', text: '(', value: '(', class: 'function', span: 1 },
+                    { key: ')', text: ')', value: ')', class: 'function', span: 1 },
+                    { key: 'Enter', text: '=', class: 'equals', span: 1 },
+                ]
+            };
+
+            // --- Safe Calculator Engine (unchanged) ---
+            const safeCalculator = {
+                parseNumber: (numStr, base) => {
+                    const [integerPart, fractionalPart] = numStr.split('.');
+                    if (integerPart === '' && fractionalPart === undefined) throw new Error(`無效數字`);
+                    const intValue = integerPart === '' ? 0 : parseInt(integerPart, base);
+                    if (isNaN(intValue)) throw new Error(`無效數字: ${integerPart}`);
+                    let fracValue = 0;
+                    if (fractionalPart) {
+                        for (let i = 0; i < fractionalPart.length; i++) {
+                            const digit = parseInt(fractionalPart[i], base);
+                            if (isNaN(digit)) throw new Error(`無效數字: ${fractionalPart}`);
+                            fracValue += digit / Math.pow(base, i + 1);
+                        }
+                    }
+                    const totalValue = intValue + fracValue;
+                    if (totalValue > Number.MAX_SAFE_INTEGER) {
+                        state.warnings.add(numStr);
+                    }
+                    return totalValue;
+                },
+                formatNumber: (num, base, precision = 8) => {
+                    if (isNaN(num)) return 'N/A';
+                    if (num < 0) return '-' + safeCalculator.formatNumber(Math.abs(num), base, precision);
+                    const intPart = Math.trunc(num);
+                    let fracPart = Math.abs(num - intPart);
+                    const intStr = intPart.toString(base).toUpperCase();
+                    if (fracPart < 1e-9) return intStr;
+                    let fracStr = '';
+                    for (let i = 0; i < precision && fracPart > 1e-9; i++) {
+                        fracPart *= base;
+                        const digit = Math.floor(fracPart);
+                        fracStr += digit.toString(base).toUpperCase();
+                        fracPart -= digit;
+                    }
+                    return `${intStr}.${fracStr}`.replace(/\.$/, '');
+                },
+                evaluate: (expression, base) => {
+                    try {
+                        state.warnings.clear();
+                        const sanitizedExpr = expression.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-').trim();
+                        if (sanitizedExpr === '') return { result: 0, error: null };
+                        const tokens = sanitizedExpr.match(/([0-9A-F\.]+|[+\-*\/()])/g);
+                        if (!tokens) throw new Error('無效的表達式');
+                        const processedTokens = [];
+                        let lastToken = null;
+                        for (const token of tokens) {
+                            if ((token === '-' || token === '+') && (lastToken === null || ['+', '-', '*', '/', '('].includes(lastToken))) {
+                                processedTokens.push(token === '-' ? -1 : 1); processedTokens.push('*');
+                            } else { processedTokens.push(token); }
+                            lastToken = token;
+                        }
+                        const precedence = { '+': 1, '-': 1, '*': 2, '/': 2 };
+                        const outputQueue = [];
+                        const operatorStack = [];
+                        for (const token of processedTokens) {
+                            if (typeof token === 'number') outputQueue.push(token);
+                            else if (/^[0-9A-F\.]+$/.test(token)) outputQueue.push(safeCalculator.parseNumber(token, base));
+                            else if (token in precedence) {
+                                while (operatorStack.length > 0 && operatorStack[operatorStack.length - 1] !== '(' && precedence[operatorStack[operatorStack.length - 1]] >= precedence[token]) {
+                                    outputQueue.push(operatorStack.pop());
+                                }
+                                operatorStack.push(token);
+                            } else if (token === '(') operatorStack.push(token);
+                            else if (token === ')') {
+                                while (operatorStack.length > 0 && operatorStack[operatorStack.length - 1] !== '(') outputQueue.push(operatorStack.pop());
+                                if (operatorStack.length === 0) throw new Error('括號不匹配');
+                                operatorStack.pop();
+                            } else throw new Error(`無效的符號: ${token}`);
+                        }
+                        while (operatorStack.length > 0) {
+                            const op = operatorStack.pop();
+                            if (op === '(') throw new Error('括號不匹配');
+                            outputQueue.push(op);
+                        }
+                        const evalStack = [];
+                        for (const token of outputQueue) {
+                            if (typeof token === 'number') { evalStack.push(token); continue; }
+                            if (evalStack.length < 2) throw new Error('語法錯誤');
+                            const b = evalStack.pop(); const a = evalStack.pop();
+                            switch (token) {
+                                case '+': evalStack.push(a + b); break;
+                                case '-': evalStack.push(a - b); break;
+                                case '*': evalStack.push(a * b); break;
+                                case '/':
+                                    if (b === 0) throw new Error('不可除以零');
+                                    evalStack.push(a / b);
+                                    break;
+                            }
+                        }
+                        if (evalStack.length !== 1) throw new Error('語法錯誤');
+                        const finalResult = evalStack[0];
+                        if (!isFinite(finalResult)) throw new Error('結果無效');
+                        return { result: finalResult, error: null };
+                    } catch (e) {
+                        return { result: null, error: e.message };
+                    }
+                }
+            };
+
+            // --- UI & Event Handlers ---
+            const showToast = (message, type = 'error') => {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.textContent = message;
+                dom.toastContainer.appendChild(toast);
+                setTimeout(() => { toast.classList.add('show'); }, 10);
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    toast.addEventListener('transitionend', () => toast.remove());
+                }, 3000);
+            };
+
+            const renderButtons = (base) => {
+                const isHex = base === 16;
+                const layout = isHex ? buttonLayouts.hex : buttonLayouts.std;
+                const columns = isHex ? 5 : 4;
+                dom.buttonsGrid.innerHTML = '';
+                dom.buttonsGrid.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+                dom.calculator.style.maxWidth = isHex ? '620px' : '500px';
+
+                layout.forEach(btnDef => {
+                    const button = document.createElement('button');
+                    button.className = `btn ${btnDef.class}`;
+                    button.dataset.key = btnDef.key;
+                    if (btnDef.value) button.dataset.value = btnDef.value;
+                    if (btnDef.span > 1) button.style.gridColumn = `span ${btnDef.span}`;
+                    button.innerHTML = btnDef.text;
+                    dom.buttonsGrid.appendChild(button);
+                });
+                updateButtonStates();
+            };
+
+            const updateDisplay = () => {
+                dom.mainDisplayInput.value = state.currentInput || '0';
+                dom.expressionDisplay.innerHTML = state.historyExpression || '';
+                dom.expressionDisplay.prepend(dom.feedbackEmoji);
+            };
+
+            const updateButtonStates = () => {
+                const validDigits = { 16: "0123456789ABCDEF.", 10: "0123456789.", 8: "01234567.", 2: "01." }[state.base];
+                dom.buttonsGrid.querySelectorAll('button[data-value]').forEach(btn => {
+                    const value = btn.dataset.value;
+                    if (value && value.match(/^[0-9A-F.]$/)) {
+                        btn.disabled = !validDigits.includes(value.toUpperCase());
+                    }
+                });
+            };
+
+            const clearCalculator = () => {
+                Object.assign(state, { currentInput: '', historyExpression: '', isError: false, justCalculated: false, lastResult: 0 });
+                updateCalcResults(0);
+                updateDisplay();
+                dom.feedbackEmoji.textContent = '😊';
+            };
+
+            const calculate = () => {
+                if (state.currentInput.trim() === '') return;
+                const { result, error } = safeCalculator.evaluate(state.currentInput, state.base);
+
+                if (error) {
+                    state.historyExpression = `${state.currentInput} = <span style="color:var(--color-red);">${error}</span>`;
+                    state.isError = true;
+                    updateCalcResults(NaN);
+                    showToast(error, 'error');
+                    dom.feedbackEmoji.textContent = '😵';
+                } else {
+                    if (state.warnings.size > 0) {
+                        const firstWarning = state.warnings.values().next().value;
+                        showToast(`數字 ${firstWarning} 超出安全範圍，可能失去精度`, 'warning');
+                    }
+                    const resultInCurrentBase = safeCalculator.formatNumber(result, state.base);
+                    state.historyExpression = `${state.currentInput} = ${resultInCurrentBase}`;
+                    state.currentInput = resultInCurrentBase;
+                    state.lastResult = result;
+                    state.isError = false;
+                    state.justCalculated = true;
+                    updateCalcResults(result);
+                    addHistoryItem(state.historyExpression, resultInCurrentBase);
+                    dom.feedbackEmoji.textContent = '🤩';
+                }
+                updateDisplay();
+            };
+
+            const addHistoryItem = (expression, result) => {
+                const HISTORY_LIMIT = 50;
+                if (dom.historyItems.children.length >= HISTORY_LIMIT) {
+                    dom.historyItems.removeChild(dom.historyItems.lastElementChild);
+                }
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.innerHTML = expression;
+                item.addEventListener('click', () => {
+                    state.currentInput = result;
+                    state.justCalculated = true;
+                    updateDisplay();
+                });
+                dom.historyItems.prepend(item);
+            };
+
+            const updateCalcResults = (result) => {
+                const isError = isNaN(result);
+                dom.calcHex.textContent = isError ? 'Error' : safeCalculator.formatNumber(result, 16);
+                dom.calcDec.textContent = isError ? 'Error' : safeCalculator.formatNumber(result, 10);
+                dom.calcOct.textContent = isError ? 'Error' : safeCalculator.formatNumber(result, 8);
+                dom.calcBin.textContent = isError ? 'Error' : safeCalculator.formatNumber(result, 2);
+            };
+
+            // --- Event Listeners Setup ---
+            dom.calculatorBaseSelector.addEventListener('change', (e) => {
+                const oldBase = state.base;
+                const newBase = parseInt(e.target.value, 10);
+                state.base = newBase;
+
+                if (state.currentInput.trim() !== '' && !/[+\-*\/()]/.test(state.currentInput)) {
+                    try {
+                        const value = safeCalculator.parseNumber(state.currentInput, oldBase);
+                        state.currentInput = safeCalculator.formatNumber(value, newBase);
+                    } catch { state.currentInput = ''; }
+                }
+                renderButtons(newBase);
+                updateDisplay();
+            });
+
+            dom.buttonsGrid.addEventListener('click', (e) => {
+                const button = e.target.closest('button');
+                if (!button) return;
+                
+                dom.feedbackEmoji.textContent = '😮';
+                setTimeout(() => { dom.feedbackEmoji.textContent = '😊' }, 300);
+                button.style.animation = 'bounce 0.3s';
+                setTimeout(() => { button.style.animation = '' }, 300);
+
+                if (button.disabled) return;
+
+                const { key, value } = button.dataset;
+                if (state.isError && key !== 'c_ac') { clearCalculator(); return; }
+
+                switch (key) {
+                    case 'c_ac': clearCalculator(); break;
+                    case 'Backspace':
+                        if (state.justCalculated) clearCalculator();
+                        else state.currentInput = state.currentInput.slice(0, -1);
+                        break;
+                    case 'Enter': calculate(); break;
+                    default:
+                        if (value === '.') {
+                            const lastOperatorIndex = Math.max(state.currentInput.lastIndexOf('+'), state.currentInput.lastIndexOf('-'), state.currentInput.lastIndexOf('*'), state.currentInput.lastIndexOf('/'));
+                            const currentNumberStr = state.currentInput.substring(lastOperatorIndex + 1);
+                            if (currentNumberStr.includes('.')) return;
+                        }
+                        if (state.justCalculated) {
+                            if (button.classList.contains('operator')) {
+                                state.currentInput = dom.mainDisplayInput.value + (value || '');
+                            } else { state.currentInput = value || ''; }
+                        } else { state.currentInput += value || ''; }
+                        state.justCalculated = false;
+                        break;
+                }
+                updateDisplay();
+            });
+
+            dom.converterInput.addEventListener('input', () => {
+                const input = dom.converterInput.value.trim().toUpperCase();
+                const results = { hex: '', dec: '', oct: '', bin: '' };
+                
+                const invalidCharRegex = {
+                    16: /[^0-9A-F.,\s\-，]/g,
+                    10: /[^0-9.,\s\-，]/g,
+                    8: /[^0-7.,\s\-，]/g,
+                    2: /[^0-1.,\s\-，]/g
+                }[state.converterBase];
+
+                if (invalidCharRegex.test(input)) {
+                    showToast('輸入包含當前進制不允許的字元', 'warning');
+                }
+
+                if (!input) {
+                    Object.keys(results).forEach(key => {
+                        dom['converter' + key.charAt(0).toUpperCase() + key.slice(1)].textContent = '0';
+                    });
+                    return;
+                }
+
+                const tokens = input.match(/[0-9A-F.]+|[,\s\-，]+/g) || [];
+
+                tokens.forEach(token => {
+                    if (!/[,\s\-，]/.test(token)) {
+                        try {
+                            const value = safeCalculator.parseNumber(token, state.converterBase);
+                            results.hex += safeCalculator.formatNumber(value, 16);
+                            results.dec += safeCalculator.formatNumber(value, 10);
+                            results.oct += safeCalculator.formatNumber(value, 8);
+                            results.bin += safeCalculator.formatNumber(value, 2);
+                        } catch {
+                            Object.keys(results).forEach(key => results[key] += `<span style="color:var(--color-red);">${token}</span>`);
+                        }
+                    } else {
+                        Object.keys(results).forEach(key => results[key] += token);
+                    }
+                });
+
+                Object.keys(results).forEach(key => {
+                    const el = dom['converter' + key.charAt(0).toUpperCase() + key.slice(1)];
+                    el.innerHTML = results[key] || '0';
+                });
+            });
+
+            dom.clearHistoryBtn.addEventListener('click', () => { dom.historyItems.innerHTML = ''; });
+
+            dom.converterBaseSelector.addEventListener('change', (e) => {
+                state.converterBase = parseInt(e.target.value, 10);
+                dom.converterInput.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+
+            // --- Initialization ---
+            renderButtons(state.base);
+            clearCalculator();
+        });
+    </script>
+</body>
+
+</html>
